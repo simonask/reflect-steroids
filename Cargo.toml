@@ -4,6 +4,7 @@ authors = ["Simon Ask Ulsnes <simon@ulsnes.dk>"]
 version = "0.1.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
+description = "Extensions for bevy_reflect enabling reflection through arbitrary trait objects"
 
 [dependencies]
 bevy_reflect = "0.8.0"
