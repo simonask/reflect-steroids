@@ -5,6 +5,10 @@ version = "0.1.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 description = "Extensions for bevy_reflect enabling reflection through arbitrary trait objects"
+repository = "https://github.com/simonask/reflect-steroids"
+homepage = "https://docs.rs/reflect-steroids/latest/reflect_steroids"
+keywords = ["bevy", "reflection"]
+readme = "README.md"
 
 [dependencies]
 bevy_reflect = "0.8.0"
