@@ -10,6 +10,9 @@ homepage = "https://docs.rs/reflect-steroids/latest/reflect_steroids"
 keywords = ["bevy", "reflection"]
 readme = "README.md"
 
+[workspace]
+members = ["crates/test-macro-namespacing"]
+
 [dependencies]
 bevy_reflect = "0.8.0"
 scoped-tls = "1.0.0"

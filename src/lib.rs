@@ -86,25 +86,31 @@ macro_rules! impl_dynamic_trait {
         }
 
         impl $crate::DynamicCaster<dyn $trait_name> for $type_data_name {
-            fn from_reflect(&self, this: Box<dyn Reflect>) -> Box<dyn $trait_name> {
+            fn from_reflect(&self, this: Box<dyn $crate::reflect::Reflect>) -> Box<dyn $trait_name> {
                 self.get_boxed(this).unwrap()
             }
 
-            fn from_reflect_ref<'a>(&self, this: &'a dyn Reflect) -> &'a dyn $trait_name {
+            fn from_reflect_ref<'a>(&self, this: &'a dyn $crate::reflect::Reflect) -> &'a dyn $trait_name {
                 self.get(this).unwrap()
             }
 
-            fn from_reflect_mut<'a>(&self, this: &'a mut dyn Reflect) -> &'a mut dyn $trait_name {
+            fn from_reflect_mut<'a>(&self, this: &'a mut dyn $crate::reflect::Reflect) -> &'a mut dyn $trait_name {
                 self.get_mut(this).unwrap()
             }
         }
 
         #[allow(dead_code)]
         impl dyn $trait_name {
+            #[doc = "Returns `true` if the underlying value is of type `T`, or `false` otherwise."]
+            #[doc = ""]
+            #[doc = "The underlying value is the concrete type that is stored in this `dyn` object; it can be downcasted to."]
             pub fn is<T: $trait_name>(&self) -> bool {
                 self.as_reflect().is::<T>()
             }
 
+            #[doc = "Downcasts the value to type `T`, consuming the trait object."]
+            #[doc = ""]
+            #[doc = "If the underlying value is not of type `T`, returns `Err(self)`."]
             pub fn downcast<T: $trait_name>(self: Box<Self>) -> Result<Box<T>, Box<Self>> {
                 if self.is::<T>() {
                     Ok(<dyn $crate::reflect::Reflect>::downcast(
@@ -116,14 +122,23 @@ macro_rules! impl_dynamic_trait {
                 }
             }
 
+            #[doc = "Downcasts the value to type `T` by reference."]
+            #[doc = ""]
+            #[doc = "If the underlying value is not of type `T`, returns `None`."]
             pub fn downcast_ref<T: $trait_name>(&self) -> Option<&T> {
                 self.as_reflect().downcast_ref()
             }
 
+            #[doc = "Downcasts the value to type `T` by mutable reference."]
+            #[doc = ""]
+            #[doc = "If the underlying value is not of type `T`, returns `None`."]
             pub fn downcast_mut<T: $trait_name>(&mut self) -> Option<&mut T> {
                 self.as_reflect_mut().downcast_mut()
             }
 
+            #[doc = "Cast this trait object to `dyn Reflect`."]
+            #[doc = ""]
+            #[doc = concat!("This cannot fail because `", stringify!($trait_name), ": DowncastReflect`.")]
             pub fn into_reflect(self: Box<Self>) -> Box<dyn $crate::reflect::Reflect> {
                 $crate::DowncastReflect::downcast_into_reflect(self)
             }
@@ -152,19 +167,19 @@ macro_rules! impl_dynamic_trait {
                 (**self).as_reflect_mut().as_any_mut()
             }
 
-            fn as_reflect(&self) -> &dyn Reflect {
+            fn as_reflect(&self) -> &dyn $crate::reflect::Reflect {
                 (**self).as_reflect().as_reflect()
             }
 
-            fn as_reflect_mut(&mut self) -> &mut dyn Reflect {
+            fn as_reflect_mut(&mut self) -> &mut dyn $crate::reflect::Reflect {
                 (**self).as_reflect_mut().as_reflect_mut()
             }
 
-            fn apply(&mut self, value: &dyn Reflect) {
+            fn apply(&mut self, value: &dyn $crate::reflect::Reflect) {
                 (**self).as_reflect_mut().apply(value)
             }
 
-            fn set(&mut self, value: Box<dyn Reflect>) -> Result<(), Box<dyn Reflect>> {
+            fn set(&mut self, value: Box<dyn $crate::reflect::Reflect>) -> Result<(), Box<dyn $crate::reflect::Reflect>> {
                 (**self).as_reflect_mut().set(value)
             }
 
@@ -176,7 +191,7 @@ macro_rules! impl_dynamic_trait {
                 (**self).as_reflect_mut().reflect_mut()
             }
 
-            fn clone_value(&self) -> Box<dyn Reflect> {
+            fn clone_value(&self) -> Box<dyn $crate::reflect::Reflect> {
                 (**self).as_reflect().clone_value()
             }
 
@@ -184,7 +199,7 @@ macro_rules! impl_dynamic_trait {
                 (**self).as_reflect().reflect_hash()
             }
 
-            fn reflect_partial_eq(&self, value: &dyn Reflect) -> Option<bool> {
+            fn reflect_partial_eq(&self, value: &dyn $crate::reflect::Reflect) -> Option<bool> {
                 (**self).as_reflect().reflect_partial_eq(value)
             }
 
@@ -209,19 +224,19 @@ macro_rules! impl_dynamic_trait {
             }
         }
 
-        impl ::serde::Serialize for dyn $trait_name {
+        impl $crate::serde::Serialize for dyn $trait_name {
             fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
             where
-                S: serde::Serializer,
+                S: $crate::serde::Serializer,
             {
                 $crate::serialization::serialize(self.as_reflect(), serializer)
             }
         }
 
-        impl<'de> ::serde::Deserialize<'de> for Box<dyn $trait_name> {
+        impl<'de> $crate::serde::Deserialize<'de> for Box<dyn $trait_name> {
             fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
             where
-                D: serde::Deserializer<'de>,
+                D: $crate::serde::Deserializer<'de>,
             {
                 let box_dyn_reflect = $crate::serialization::deserialize(deserializer)?;
                 $crate::Cast::try_cast(box_dyn_reflect).map_err($crate::serde::de::Error::custom)
