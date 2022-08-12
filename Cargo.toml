@@ -10,8 +10,8 @@ homepage = "https://docs.rs/reflect-steroids/latest/reflect_steroids"
 keywords = ["bevy", "reflection"]
 readme = "README.md"
 
-[workspace]
-members = ["crates/test-macro-namespacing"]
+# [workspace]
+# members = ["crates/test-macro-namespacing"]
 
 [dependencies]
 bevy_reflect = "0.8.0"
