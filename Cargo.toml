@@ -1,0 +1,15 @@
+[package]
+name = "reflect-steroids"
+authors = ["Simon Ask Ulsnes <simon@ulsnes.dk>"]
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+bevy_reflect = "0.8.0"
+scoped-tls = "1.0.0"
+serde = { version = "1.0.143", features = ["derive"] }
+thiserror = "1.0.32"
+
+[dev-dependencies]
+serde_json = "1.0.83"
