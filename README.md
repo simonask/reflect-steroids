@@ -10,6 +10,9 @@ rudimentary support for traits.
 ## Highlights
 
 - Integrates seamlessly with `bevy_reflect`.
+- Includes a facility to register types globally without explicitly calling
+  `TypeRegistry::register()`. This feature is gated behind the "inventory" crate
+  feature, enabled by default. See [`enable_global_type_registration`].
 - Includes a facility to perform generic dynamic casts between trait objects,
   patching a hole in the Rust language (similar to C++ `dynamic_cast`). See the
   [`Cast`] trait.
@@ -26,7 +29,7 @@ This crate provides a much more intuitive and user-friendly way of interacting
 with reflected types through arbitrary trait objects.
 
 By implementing [`DynamicTrait`] for `dyn MyTrait`, reflection is made available
-to all dynamic trait object references of that type. The only requirement is
+to all dynamic trait object references of that type. The only requirements are
 that the trait has [`DowncastReflect`] as a supertrait, and that a call to the
 macro [`impl_dynamic_trait!(MyTrait, ReflectMyTrait)`](impl_dynamic_trait) is
 present in the code.

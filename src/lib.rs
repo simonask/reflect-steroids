@@ -28,6 +28,10 @@ pub mod prelude {
         impl_dynamic_trait, reflect::prelude::*, Cast as _, CastBox as _, CastMut as _,
         CastRef as _, DowncastReflect, DynamicTraitExt as _, TypeRegistryExt as _,
     };
+
+    #[doc(no_inline)]
+    #[cfg(feature = "inventory")]
+    pub use super::enable_global_type_registration;
 }
 
 /// Implement [`DynamicTrait`] for a trait object.
@@ -241,6 +245,39 @@ macro_rules! impl_dynamic_trait {
                 let box_dyn_reflect = $crate::serialization::deserialize(deserializer)?;
                 $crate::Cast::try_cast(box_dyn_reflect).map_err($crate::serde::de::Error::custom)
             }
+        }
+    };
+}
+
+#[cfg(feature = "inventory")]
+#[doc(hidden)]
+pub use inventory;
+
+#[cfg(feature = "inventory")]
+#[doc(hidden)]
+pub mod global_registration {
+    use bevy_reflect::TypeRegistry;
+
+    pub struct RegisterFn(pub fn(&mut TypeRegistry));
+}
+
+/// Include a type in the global list of registered types.
+///
+/// This makes the type available in any `TypeRegistry` where
+/// [`register_global_types()`](TypeRegistryExt::register_global_types) is
+/// called.
+///
+/// The pros and cons of this facility is that it decentralizes type
+/// registration. Any crate can register types, and whoever creates the
+/// `TypeRegistry` does not need to worry about missing something. However, this
+/// also makes it more difficult to control which types are part of the
+/// registry, potentially causing it to grow very large.
+#[cfg(feature = "inventory")]
+#[macro_export]
+macro_rules! enable_global_type_registration {
+    ($t:ty) => {
+        $crate::inventory::submit! {
+            $crate::global_registration::RegisterFn(|registry| registry.register::<$t>())
         }
     };
 }
